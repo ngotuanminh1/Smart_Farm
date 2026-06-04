@@ -1,0 +1,104 @@
+{
+  "pump_history": [
+    {
+      "time": "17:49:06 | 02/06/2026",
+      "action": "Ngắt máy bơm (Hoàn thành)",
+      "mode": "Thủ công",
+      "volume": "5 ml (5 giây)",
+      "moisture": 72,
+      "temp": 34,
+      "humidity_air": 61,
+      "weather_desc": "Mây cụm"
+    },
+    {
+      "time": "17:49:02 | 02/06/2026",
+      "action": "Bắt đầu bật máy bơm",
+      "mode": "Thủ công",
+      "volume": "Đang tưới...",
+      "moisture": 72,
+      "temp": 34,
+      "humidity_air": 61,
+      "weather_desc": "Mây cụm"
+    },
+    {
+      "time": "17:48:24 | 02/06/2026",
+      "action": "Ngắt máy bơm (Hoàn thành)",
+      "mode": "Thủ công",
+      "volume": "12 ml (12 giây)",
+      "moisture": 71,
+      "temp": 34,
+      "humidity_air": 61,
+      "weather_desc": "Mây cụm"
+    },
+    {
+      "time": "17:48:12 | 02/06/2026",
+      "action": "Bắt đầu bật máy bơm",
+      "mode": "Thủ công",
+      "volume": "Đang tưới...",
+      "moisture": 71,
+      "temp": 34,
+      "humidity_air": 61,
+      "weather_desc": "Mây cụm"
+    },
+    {
+      "time": "17:47:08 | 02/06/2026",
+      "action": "Ngắt máy bơm (Hoàn thành)",
+      "mode": "Thủ công",
+      "volume": "8 ml (8 giây)",
+      "moisture": "N/A",
+      "temp": 34,
+      "humidity_air": 61,
+      "weather_desc": "Mây cụm"
+    },
+    {
+      "time": "17:47:00 | 02/06/2026",
+      "action": "Bắt đầu bật máy bơm",
+      "mode": "Thủ công",
+      "volume": "Đang tưới...",
+      "moisture": "N/A",
+      "temp": 34,
+      "humidity_air": 61,
+      "weather_desc": "Mây cụm"
+    },
+    {
+      "time": "20:34:36 | 21/05/2026",
+      "action": "Ngắt máy bơm (Hoàn thành)",
+      "mode": "Thủ công",
+      "volume": "6 ml (6 giây)",
+      "moisture": 71,
+      "temp": 30,
+      "humidity_air": 93,
+      "weather_desc": "Mây đen u ám"
+    },
+    {
+      "time": "20:34:30 | 21/05/2026",
+      "action": "Bắt đầu bật máy bơm",
+      "mode": "Thủ công",
+      "volume": "Đang tưới...",
+      "moisture": 68,
+      "temp": 30,
+      "humidity_air": 93,
+      "weather_desc": "Mây đen u ám"
+    },
+    {
+      "time": "15:12:32 | 20/05/2026",
+      "action": "Ngắt máy bơm (Hoàn thành)",
+      "mode": "Thủ công",
+      "volume": "2 ml (2 giây)",
+      "moisture": "N/A",
+      "temp": 29,
+      "humidity_air": 70,
+      "weather_desc": "Mây đen u ám"
+    },
+    {
+      "time": "15:12:30 | 20/05/2026",
+      "action": "Bắt đầu bật máy bơm",
+      "mode": "Thủ công",
+      "volume": "Đang tưới...",
+      "moisture": "N/A",
+      "temp": 29,
+      "humidity_air": 70,
+      "weather_desc": "Mây đen u ám"
+    }
+  ]
+}

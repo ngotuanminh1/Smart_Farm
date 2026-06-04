@@ -1,0 +1,1871 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Hệ Thống Trợ Lý Nông Nghiệp AI v2.3</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background-attachment: fixed;
+            min-height: 100vh;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: auto;
+        }
+
+        .header {
+            text-align: center;
+            padding: 40px 20px;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 42px;
+            font-weight: 700;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            letter-spacing: -0.5px;
+        }
+
+        .header p {
+            font-size: 16px;
+            opacity: 0.95;
+            font-weight: 300;
+            letter-spacing: 0.5px;
+        }
+
+        /* --- SIDEBAR MENU --- */
+        .sidebar {
+            height: 100%;
+            width: 0;
+            position: fixed;
+            z-index: 1000;
+            top: 0;
+            right: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            overflow-x: hidden;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            padding-top: 60px;
+            box-shadow: -8px 0 25px rgba(0, 0, 0, 0.25);
+        }
+
+        .sidebar-content {
+            padding: 25px;
+            color: white;
+        }
+
+        .sidebar .closebtn {
+            position: absolute;
+            top: 15px;
+            left: 20px;
+            font-size: 36px;
+            color: white;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar .closebtn:hover {
+            opacity: 0.8;
+            transform: scale(1.1);
+        }
+
+        .menu-btn {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            font-size: 24px;
+            cursor: pointer;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 14px 18px;
+            border-radius: 12px;
+            z-index: 999;
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.3);
+            border: none;
+            transition: all 0.3s ease;
+        }
+
+        .menu-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .sidebar-title {
+            color: #f1c40f;
+            font-weight: 700;
+            margin-bottom: 20px;
+            font-size: 13px;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.3);
+            padding-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .nav-button {
+            width: 100%;
+            padding: 14px;
+            margin-bottom: 12px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 700;
+            font-family: inherit;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .nav-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+        }
+
+        .nav-button:active {
+            transform: translateY(0);
+        }
+
+        .npk-input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .npk-input-group input {
+            padding: 12px;
+            border-radius: 10px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+            font-family: inherit;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .npk-input-group input::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .npk-input-group input:focus {
+            outline: none;
+            border-color: #f1c40f;
+            background: rgba(255, 255, 255, 0.25);
+            box-shadow: 0 0 10px rgba(241, 196, 15, 0.3);
+        }
+
+        /* --- GIAO DIỆN CHÍNH --- */
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .card {
+            background: white;
+            padding: 25px;
+            border-radius: 16px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+            text-align: center;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.8);
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.2);
+        }
+
+        .sub-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .sub-card {
+            background: white;
+            padding: 20px;
+            border-radius: 14px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            transition: all 0.3s ease;
+            border-top: 4px solid #95a5a6;
+            position: relative;
+        }
+
+        .sub-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        .bg-moisture { border-top-color: #2ecc71; }
+        .bg-temp { border-top-color: #e67e22; }
+        .bg-weather { border-top-color: #3498db; }
+
+        .val {
+            font-size: 48px;
+            font-weight: 700;
+            margin: 12px 0;
+            color: #2c3e50;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .sub-val {
+            font-size: 20px;
+            font-weight: 700;
+            color: #34495e;
+            margin-top: 8px;
+        }
+
+        .label {
+            color: #7f8c8d;
+            text-transform: uppercase;
+            font-size: 12px;
+            letter-spacing: 1.2px;
+            font-weight: 700;
+        }
+
+        .sub-label {
+            font-size: 11px;
+            color: #7f8c8d;
+            text-transform: uppercase;
+            font-weight: 700;
+            letter-spacing: 0.8px;
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1.5fr 1fr;
+            gap: 20px;
+        }
+
+        .chart-container {
+            background: white;
+            padding: 25px;
+            border-radius: 16px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+        }
+
+        .ai-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 16px;
+            min-height: 300px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 10px 40px rgba(102, 126, 234, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .ai-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 1px, transparent 1px);
+            background-size: 50px 50px;
+            pointer-events: none;
+        }
+
+        .ai-card-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .forecast-box {
+            background: rgba(255, 255, 255, 0.15);
+            padding: 16px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            border-left: 4px solid #f1c40f;
+            backdrop-filter: blur(10px);
+        }
+
+        .ai-title {
+            color: #f1c40f;
+            font-weight: 700;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 18px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        #ai_advice {
+            line-height: 1.8;
+            font-style: italic;
+            font-size: 15px;
+            color: #ecf0f1;
+            flex-grow: 1;
+        }
+
+        .loading { font-size: 14px; color: #bdc3c7; }
+
+        /* --- BẢNG LỊCH SỬ BƠM NƯỚC --- */
+        .history-container {
+            background: white;
+            padding: 25px;
+            border-radius: 16px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+            margin-top: 20px;
+            overflow-x: auto;
+            border: 1px solid rgba(255, 255, 255, 0.8);
+        }
+
+        .history-title {
+            color: #2c3e50;
+            font-weight: 700;
+            margin-bottom: 20px;
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .history-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+            table-layout: auto;
+        }
+
+        .history-table tbody tr {
+            border-bottom: 1px solid #ecf0f1;
+            transition: all 0.3s ease;
+        }
+
+        .history-table tbody tr:hover {
+            background: linear-gradient(90deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
+        }
+
+        .history-table thead {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            position: sticky;
+            top: 0;
+        }
+
+        .history-table th {
+            padding: 14px;
+            text-align: left;
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 12px;
+            letter-spacing: 1px;
+            white-space: nowrap;
+        }
+
+        .history-table td {
+            padding: 14px;
+            color: #2c3e50;
+        }
+
+        .action-on {
+            color: #e74c3c;
+            font-weight: 700;
+        }
+
+        .action-off {
+            color: #27ae60;
+            font-weight: 700;
+        }
+
+        .mode-manual {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .mode-auto {
+            background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .volume-badge {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 12px;
+        }
+
+        .empty-message {
+            text-align: center;
+            padding: 40px 20px;
+            color: #95a5a6;
+            font-style: italic;
+            font-size: 15px;
+        }
+
+        /* --- TAB NAVIGATION --- */
+        .tabs-container {
+            margin-bottom: 30px;
+            background: white;
+            border-radius: 14px;
+            padding: 8px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .tabs {
+            display: flex;
+            gap: 8px;
+            border-bottom: none;
+            flex-wrap: wrap;
+        }
+
+        .tab-button {
+            padding: 14px 24px;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 14px;
+            color: #7f8c8d;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .tab-button:hover {
+            color: #667eea;
+            background: rgba(102, 126, 234, 0.1);
+        }
+
+        .tab-button.active {
+            color: white;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* --- THỐNG KÊ & BIỂU ĐỒ --- */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 22px;
+            border-radius: 14px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            border-top: 4px solid #3498db;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        .stat-card.water-color { border-top-color: #2ecc71; }
+        .stat-card.pump-color { border-top-color: #e74c3c; }
+        .stat-card.avg-color { border-top-color: #f39c12; }
+        .stat-card.date-color { border-top-color: #9b59b6; }
+
+        .stat-value {
+            font-size: 36px;
+            font-weight: 700;
+            color: #2c3e50;
+            margin: 12px 0;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #7f8c8d;
+            text-transform: uppercase;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+
+        .stat-unit {
+            font-size: 13px;
+            color: #95a5a6;
+            margin-top: 8px;
+        }
+
+        .period-selector {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .period-btn {
+            padding: 12px 24px;
+            border: 2px solid #ecf0f1;
+            background: white;
+            cursor: pointer;
+            border-radius: 10px;
+            font-weight: 700;
+            color: #7f8c8d;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-size: 12px;
+        }
+
+        .period-btn:hover {
+            border-color: #667eea;
+            color: #667eea;
+            background: rgba(102, 126, 234, 0.05);
+        }
+
+        .period-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: transparent;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .daily-stats-table {
+            background: white;
+            padding: 25px;
+            border-radius: 16px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+            overflow-x: auto;
+            border: 1px solid rgba(255, 255, 255, 0.8);
+        }
+
+        .daily-stats-table table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .daily-stats-table th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 14px;
+            text-align: left;
+            font-weight: 700;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .daily-stats-table td {
+            padding: 14px;
+            border-bottom: 1px solid #ecf0f1;
+            color: #2c3e50;
+        }
+
+        .daily-stats-table tr:hover {
+            background: linear-gradient(90deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
+        }
+
+        /* --- CẢNH BÁO --- */
+        .alert-settings {
+            background: white;
+            padding: 25px;
+            border-radius: 16px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+            margin-bottom: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.8);
+        }
+
+        .alert-item {
+            padding: 16px;
+            border-left: 4px solid #e74c3c;
+            background: linear-gradient(90deg, #ffe8e8 0%, rgba(255, 232, 232, 0.5) 100%);
+            border-radius: 10px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .alert-item:hover {
+            transform: translateX(4px);
+            box-shadow: 0 4px 15px rgba(230, 126, 34, 0.1);
+        }
+
+        .alert-item.dry {
+            border-left-color: #e67e22;
+            background: linear-gradient(90deg, #fef0e6 0%, rgba(254, 240, 230, 0.5) 100%);
+        }
+
+        .alert-item.wet {
+            border-left-color: #3498db;
+            background: linear-gradient(90deg, #e8f4f8 0%, rgba(232, 244, 248, 0.5) 100%);
+        }
+
+        .alert-item.info {
+            border-left-color: #2ecc71;
+            background: linear-gradient(90deg, #e8f8f5 0%, rgba(232, 248, 245, 0.5) 100%);
+        }
+
+        .alert-content {
+            flex: 1;
+        }
+
+        .alert-title {
+            font-weight: 700;
+            font-size: 16px;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+
+        .alert-desc {
+            font-size: 13px;
+            color: #7f8c8d;
+        }
+
+        .alert-status {
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            white-space: nowrap;
+        }
+
+        .alert-status.enabled {
+            background: #2ecc71;
+            color: white;
+        }
+
+        .alert-status.disabled {
+            background: #95a5a6;
+            color: white;
+        }
+
+        /* --- CHATBOT UI --- */
+        .chatbot-container {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            height: 600px;
+            max-height: 70vh;
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 15px;
+            background: #f8f9fa;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            user-select: text;
+        }
+
+        .chat-message {
+            margin-bottom: 0;
+            display: flex;
+            animation: slideIn 0.3s ease-out;
+            user-select: text;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .chat-message.user {
+            justify-content: flex-end;
+        }
+
+        .chat-message.bot {
+            justify-content: flex-start;
+        }
+
+        .message-bubble {
+            max-width: 85%;
+            padding: 10px 12px;
+            border-radius: 12px;
+            word-wrap: break-word;
+            line-height: 1.4;
+            font-size: 13px;
+            user-select: text;
+        }
+
+        .message-bubble.user {
+            background: #3498db;
+            color: white;
+            border-bottom-right-radius: 4px;
+        }
+
+        .message-bubble.bot {
+            background: white;
+            color: #2c3e50;
+            border: 1px solid #ecf0f1;
+            border-bottom-left-radius: 4px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+
+        .chat-input-area {
+            padding: 12px;
+            border-top: 1px solid #ecf0f1;
+            display: flex;
+            gap: 8px;
+            background: white;
+            flex-shrink: 0;
+        }
+
+        .chat-input {
+            flex: 1;
+            padding: 10px 12px;
+            border: 1px solid #ecf0f1;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 13px;
+            resize: none;
+            max-height: 80px;
+        }
+
+        .chat-input:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+        }
+
+        .chat-send-btn {
+            padding: 10px 16px;
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 12px;
+            transition: 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            white-space: nowrap;
+        }
+
+        .chat-send-btn:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+        }
+
+        .chat-send-btn:disabled {
+            background: #95a5a6;
+            cursor: not-allowed;
+        }
+
+        .chat-loading {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            color: #7f8c8d;
+            font-size: 13px;
+        }
+
+        .chat-loading span {
+            animation: blink 1.4s infinite;
+        }
+
+        .chat-loading span:nth-child(1) { animation-delay: 0s; }
+        .chat-loading span:nth-child(2) { animation-delay: 0.2s; }
+        .chat-loading span:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes blink {
+            0%, 60%, 100% { opacity: 0.3; }
+            30% { opacity: 1; }
+        }
+
+        .chat-examples {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .example-btn {
+            padding: 8px 10px;
+            background: #ecf0f1;
+            border: 1px solid #bdc3c7;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 11px;
+            color: #2c3e50;
+            font-weight: 600;
+            transition: 0.3s;
+            text-align: left;
+            line-height: 1.3;
+        }
+
+        .example-btn:hover {
+            background: #3498db;
+            color: white;
+            border-color: #3498db;
+        }
+
+        .chat-welcome {
+            text-align: center;
+            padding: 20px 15px;
+            color: #7f8c8d;
+        }
+
+        .chat-welcome-icon {
+            font-size: 40px;
+            margin-bottom: 10px;
+        }
+
+        .chat-welcome h3 {
+            color: #2c3e50;
+            margin: 8px 0;
+            font-size: 14px;
+        }
+
+        .chat-welcome p {
+            font-size: 12px;
+            margin-bottom: 15px;
+        }
+
+        /* --- FLOATING CHATBOT BUTTON --- */
+        .chatbot-float-btn {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+            font-size: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 999;
+            transition: all 0.3s ease;
+            color: white;
+        }
+
+        .chatbot-float-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+        }
+
+        .chatbot-float-btn.active {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        /* --- CHATBOT SIDEBAR --- */
+        .chatbot-sidebar {
+            position: fixed;
+            right: 0;
+            bottom: 100px;
+            width: 360px;
+            height: 600px;
+            background: white;
+            box-shadow: -5px 0 20px rgba(0, 0, 0, 0.2);
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+            z-index: 998;
+            display: flex;
+            flex-direction: column;
+            border-radius: 15px 15px 0 0;
+            overflow: hidden;
+        }
+
+        .chatbot-sidebar.active {
+            transform: translateX(0);
+        }
+
+        .chatbot-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 15px 15px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-shrink: 0;
+        }
+
+        .chatbot-header h3 {
+            margin: 0;
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .chatbot-close-btn {
+            background: rgba(255, 255, 255, 0.3);
+            border: none;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: 0.2s;
+            user-select: none;
+        }
+
+        .chatbot-close-btn:hover {
+            background: rgba(255, 255, 255, 0.5);
+        }
+
+        /* Media query cho mobile */
+        @media (max-width: 1024px) {
+            .grid {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .sub-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 28px;
+            }
+
+            .grid {
+                grid-template-columns: 1fr;
+            }
+
+            .sub-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .card {
+                padding: 18px;
+            }
+
+            .val {
+                font-size: 36px;
+            }
+
+            .history-table th,
+            .history-table td {
+                padding: 8px;
+                font-size: 12px;
+            }
+
+            .daily-stats-table th,
+            .daily-stats-table td {
+                padding: 8px;
+                font-size: 12px;
+            }
+
+            .chatbot-sidebar {
+                width: 100%;
+                height: 70vh;
+                bottom: 80px;
+                border-radius: 15px 15px 0 0;
+            }
+
+            .chatbot-header {
+                border-radius: 15px 15px 0 0;
+            }
+
+            .chatbot-float-btn {
+                bottom: 20px;
+                right: 20px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 10px;
+            }
+
+            .header {
+                padding: 20px 10px;
+            }
+
+            .header h1 {
+                font-size: 22px;
+            }
+
+            .sub-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .val {
+                font-size: 32px;
+            }
+
+            .card {
+                padding: 15px;
+            }
+        }
+    </style>
+
+</head>
+
+<body>
+
+    <button class="menu-btn" onclick="toggleNav()"><i class="fas fa-bars"></i></button>
+
+    <div id="mySidebar" class="sidebar">
+        <a href="javascript:void(0)" class="closebtn" onclick="toggleNav()">&times;</a>
+        <div class="sidebar-content">
+            <div class="sidebar-title"><i class="fas fa-toggle-on"></i> Điều khiển bơm</div>
+            <button onclick="manualPump('ON')" class="nav-button" style="background:#e74c3c; color:white;"><i class="fas fa-play"></i> BẬT TAY</button>
+            <button onclick="manualPump('OFF')" class="nav-button" style="background:#95a5a6; color:white;"><i class="fas fa-stop"></i> TẮT TAY</button>
+            <button onclick="manualPump('AUTO')" class="nav-button" style="background:#2ecc71; color:white;"><i class="fas fa-robot"></i> TỰ ĐỘNG (AI)</button>
+
+            <div class="sidebar-title" style="margin-top: 30px;"><i class="fas fa-flask"></i> Nhập chỉ số NPK</div>
+            <div class="npk-input-group">
+                <input type="number" id="n_input" placeholder="Nitơ (N) mg/kg">
+                <input type="number" id="p_input" placeholder="Phốt pho (P) mg/kg">
+                <input type="number" id="k_input" placeholder="Kali (K) mg/kg">
+                <button onclick="sendNPK()" class="nav-button" style="background:#3498db; color:white;"><i class="fas fa-sync-alt"></i> CẬP NHẬT NPK</button>
+            </div>
+
+            <div class="sidebar-title" style="margin-top: 20px;"><i class="fas fa-cog"></i> Loại cây</div>
+            <select id="crop_select" style="width:100%; padding:10px; border-radius:8px; background:#34495e; color:white; border:1px solid #546e7a;">
+                <option value="mac_dinh">Cây trồng chung</option>
+                <option value="lua">Lúa nước</option>
+                <option value="rau_muong">Rau muống</option>
+                <option value="xuong_rong">Xương rồng</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="header">
+            <h1><i class="fas fa-robot"></i> TRỢ LÝ NÔNG NGHIỆP AI</h1>
+            <p>Hệ thống quan trắc và tối ưu hóa cây trồng thông minh</p>
+        </div>
+
+        <!-- --- TAB NAVIGATION --- -->
+        <div class="tabs-container">
+            <div class="tabs">
+                <button class="tab-button active" onclick="showTab('dashboard')">
+                    <i class="fas fa-chart-line"></i> Bảng điều khiển
+                </button>
+                <button class="tab-button" onclick="showTab('statistics')">
+                    <i class="fas fa-bar-chart"></i> 📊 Thống kê & Biểu đồ
+                </button>
+                <button class="tab-button" onclick="showTab('alerts')">
+                    <i class="fas fa-bell"></i> 🔔 Cảnh báo
+                </button>
+            </div>
+        </div>
+
+        <!-- --- TAB: DASHBOARD --- -->
+        <div id="dashboard" class="tab-content active">
+
+        <div class="grid">
+            <div class="card bg-moisture">
+                <div class="label"><i class="fas fa-tint"></i> Độ ẩm đất</div>
+                <div class="val" id="moisture_val">0%</div>
+                <div id="moisture_status" style="font-size: 14px; font-weight: bold;">Đang đọc...</div>
+            </div>
+            <div class="card bg-temp">
+                <div class="label"><i class="fas fa-thermometer-half"></i> Nhiệt độ ngoài trời</div>
+                <div class="val" id="temp_val"><span class="loading">Đang tải...</span></div>
+                <div style="font-size: 14px; color: #7f8c8d;"><i class="fas fa-map-marker-alt"></i> Hà Nội</div>
+            </div>
+            <div class="card bg-weather">
+                <div class="label"><i class="fas fa-cloud-sun"></i> Bầu trời</div>
+                <div class="val" id="weather_desc" style="font-size: 20px; padding: 15px 0;">ĐANG CẬP NHẬT...</div>
+                <div id="air_hum" style="font-size: 14px;">Độ ẩm khí trời: --%</div>
+            </div>
+        </div>
+
+        <div class="sub-grid" style="grid-template-columns: repeat(3, 1fr);">
+            <div class="sub-card" style="border-bottom: 3px solid #e74c3c;"><div class="sub-label">Nitơ (N)</div><div class="sub-val" id="n_display">0</div></div>
+            <div class="sub-card" style="border-bottom: 3px solid #f1c40f;"><div class="sub-label">Phốt pho (P)</div><div class="sub-val" id="p_display">0</div></div>
+            <div class="sub-card" style="border-bottom: 3px solid #9b59b6;"><div class="sub-label">Kali (K)</div><div class="sub-val" id="k_display">0</div></div>
+        </div>
+
+        <div class="sub-grid">
+            <div class="sub-card"><div class="sub-label"><i class="fas fa-wind"></i> Gió</div><div class="sub-val" id="wind_val">-- m/s</div></div>
+            <div class="sub-card"><div class="sub-label"><i class="fas fa-cloud-showers-heavy"></i> Mưa</div><div class="sub-val" id="rain_val">-- mm</div></div>
+            <div class="sub-card"><div class="sub-label"><i class="fas fa-eye"></i> Tầm nhìn</div><div class="sub-val" id="vis_val">-- km</div></div>
+            <div class="sub-card"><div class="sub-label"><i class="fas fa-compress-alt"></i> Áp suất</div><div class="sub-val" id="pres_val">-- hPa</div></div>
+        </div>
+
+        <div class="main-grid">
+            <div class="chart-container">
+                <h3 style="margin-top:0; color:#7f8c8d; font-size: 15px;"><i class="fas fa-chart-line"></i> BIẾN THIÊN ĐỘ ẨM ĐẤT</h3>
+                <div style="height: 300px;"><canvas id="moistureChart"></canvas></div>
+            </div>
+
+            <div class="ai-card">
+                <div class="forecast-box">
+                    <div class="label" style="color: #f1c40f; font-size: 11px;"><i class="fas fa-magic"></i> Dự báo 3 giờ tới</div>
+                    <div id="forecast_text" style="margin-top:5px; font-weight: bold; font-size: 17px;">Đang tải...</div>
+                    <div id="rain_prob" style="font-size: 13px; margin-top:5px; color: #bdc3c7;">Xác suất mưa: --%</div>
+                </div>
+                <div class="ai-title"><i class="fas fa-brain"></i> LỜI KHUYÊN AI</div>
+                <div id="ai_advice">Hệ thống đang phân tích...</div>
+                <div style="margin-top: 15px; font-size: 11px; color: #5dade2; text-align: right;">v2.3 NPK Integrated</div>
+            </div>
+        </div>
+
+        <!-- BẢNG LỊCH SỬ BƠM NƯỚC -->
+        <div class="history-container">
+            <div class="history-title">
+                <i class="fas fa-history"></i> LỊCH SỬ BƠM NƯỚC
+            </div>
+            <table class="history-table">
+                <thead>
+                    <tr>
+                        <th>🕐 Thời gian</th>
+                        <th>⚙️ Hành động</th>
+                        <th>🎛️ Chế độ</th>
+                        <th>💧 Lượng nước</th>
+                        <th>🌱 Độ ẩm (%)</th>
+                        <th>🌡️ Nhiệt độ (°C)</th>
+                        <th>💨 Độ ẩm khí (%)</th>
+                        <th>☁️ Thời tiết</th>
+                    </tr>
+                </thead>
+                <tbody id="pump_history_body">
+                    <tr><td colspan="8" class="empty-message">Chưa có dữ liệu bơm nước</td></tr>
+                </tbody>
+            </table>
+        </div>
+        </div>
+
+        <!-- --- TAB: THỐNG KÊ & BIỂU ĐỒ --- -->
+        <div id="statistics" class="tab-content">
+            <h2 style="color: #2c3e50; margin-bottom: 20px;"><i class="fas fa-bar-chart"></i> THỐNG KÊ & BIỂU ĐỒ TƯ TIÊU NƯỚC</h2>
+            
+            <!-- Lựa chọn kỳ thời gian -->
+            <div class="period-selector">
+                <button class="period-btn active" onclick="changePeriod('day')">
+                    <i class="fas fa-calendar-day"></i> Hôm nay
+                </button>
+                <button class="period-btn" onclick="changePeriod('week')">
+                    <i class="fas fa-calendar-week"></i> Tuần này
+                </button>
+                <button class="period-btn" onclick="changePeriod('month')">
+                    <i class="fas fa-calendar-alt"></i> Tháng này
+                </button>
+            </div>
+
+            <!-- Các chỉ số thống kê chính -->
+            <div class="stats-grid">
+                <div class="stat-card water-color">
+                    <div class="stat-label"><i class="fas fa-droplet"></i> Tổng lượng nước</div>
+                    <div class="stat-value" id="total_water_display">0</div>
+                    <div class="stat-unit">ml</div>
+                </div>
+                <div class="stat-card pump-color">
+                    <div class="stat-label"><i class="fas fa-spinner"></i> Số lần bơm</div>
+                    <div class="stat-value" id="pump_times_display">0</div>
+                    <div class="stat-unit">lần</div>
+                </div>
+                <div class="stat-card avg-color">
+                    <div class="stat-label"><i class="fas fa-bar-chart-o"></i> Lượng nước TB</div>
+                    <div class="stat-value" id="avg_water_display">0</div>
+                    <div class="stat-unit">ml/lần</div>
+                </div>
+                <div class="stat-card date-color">
+                    <div class="stat-label"><i class="fas fa-info-circle"></i> Kỳ thời gian</div>
+                    <div class="stat-value" id="period_display">Hôm nay</div>
+                    <div class="stat-unit"></div>
+                </div>
+            </div>
+
+            <!-- Biểu đồ lịch sử thống kê -->
+            <div class="chart-container" style="margin-bottom: 20px; max-height: 220px; overflow: hidden; position: relative;">
+                <h3 style="margin-top: 0; color: #2c3e50; font-size: 16px;">
+                    <i class="fas fa-line-chart"></i> BIỂU ĐỒ SỬ DỤNG NƯỚC THEO NGÀY
+                </h3>
+                <div style="max-height: 180px; overflow: hidden;">
+                    <canvas id="statisticsChart" style="height: 180px;"></canvas>
+                </div>
+            </div>
+
+            <!-- Bảng chi tiết hằng ngày -->
+            <div class="daily-stats-table">
+                <h3 style="margin-top: 0; color: #2c3e50; font-size: 16px;">
+                    <i class="fas fa-table"></i> CHI TIẾT HẰNG NGÀY
+                </h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>📅 Ngày</th>
+                            <th>💧 Tổng nước (ml)</th>
+                            <th>🔄 Số lần bơm</th>
+                            <th>📊 TB nước/lần (ml)</th>
+                            <th>🌱 Độ ẩm (%)</th>
+                            <th>🌡️ Nhiệt độ (°C)</th>
+                            <th>💨 Độ ẩm khí (%)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="stats_table_body">
+                        <tr>
+                            <td colspan="7" style="text-align: center; padding: 30px; color: #95a5a6;">
+                                ⏳ Đang tải dữ liệu...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- --- TAB: CẢNH BÁO --- -->
+        <div id="alerts" class="tab-content">
+            <h2 style="color: #2c3e50; margin-bottom: 20px;"><i class="fas fa-bell"></i> HỆ THỐNG CẢNH BÁO TỰ ĐỘNG</h2>
+            
+            <div class="alert-settings">
+                <h3 style="color: #2c3e50; margin-top: 0;">⚙️ Cấu hình cảnh báo</h3>
+
+                <div class="alert-item dry">
+                    <div class="alert-content">
+                        <div class="alert-title">🚨 Cảnh báo: Nông nghiệp thông minh</div>
+                        <div class="alert-desc">Kích hoạt khi độ ẩm đất < 30% - Gửi email tự động</div>
+                    </div>
+                    <div class="alert-status enabled">
+                        <i class="fas fa-check-circle"></i> Bật
+                    </div>
+                </div>
+
+                <div class="alert-item wet">
+                    <div class="alert-content">
+                        <div class="alert-title">🚨 Cảnh báo: Nông nghiệp thông minh</div>
+                        <div class="alert-desc">Kích hoạt khi độ ẩm đất > 75% - Gửi email tự động</div>
+                    </div>
+                    <div class="alert-status enabled">
+                        <i class="fas fa-check-circle"></i> Bật
+                    </div>
+                </div>
+
+                <div class="alert-item info" style="border-left-color: #2ecc71; background: #e8f8f5;">
+                    <div class="alert-content">
+                        <div class="alert-title">✅ Email được cấu hình</div>
+                        <div class="alert-desc">
+                            📧 <strong>Email nhận:</strong> ngotuanminh2689@gmail.com<br>
+                            ✉️ <strong>Tần suất:</strong> Gửi mỗi khi độ ẩm vượt hoặc thấp hơn ngưỡng<br>
+                            🔔 <strong>Trạng thái:</strong> Hoạt động bình thường
+                        </div>
+                    </div>
+                    <div class="alert-status enabled">
+                        <i class="fas fa-cog"></i> Sẵn sàng
+                    </div>
+                </div>
+            </div>
+
+            <div class="alert-settings">
+                <h3 style="color: #2c3e50; margin-top: 0;">📝 Lịch sử cảnh báo gần đây</h3>
+                <div id="alert_history" style="padding: 20px; text-align: center; color: #7f8c8d;">
+                    <p>Chưa có cảnh báo trong hôm nay</p>
+                </div>
+            </div>
+
+            <div class="alert-settings" style="background: #fef9e7; border-left: 4px solid #f39c12;">
+                <h3 style="color: #e67e22; margin-top: 0;">ℹ️ Ghi chú</h3>
+                <ul style="color: #7f8c8d; margin: 10px 0;">
+                    <li>Cảnh báo được gửi <strong>mỗi khi độ ẩm vượt ngưỡng</strong> (< 30% hoặc > 75%)</li>
+                    <li>Lịch sử cảnh báo được lưu trữ tối đa <strong>50 mục gần nhất</strong></li>
+                    <li>Sẽ có cảnh báo khôi phục khi độ ẩm trở lại bình thường</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- --- FLOATING CHATBOT BUTTON --- -->
+        <button class="chatbot-float-btn" id="chatbot_float_btn" onclick="toggleChatbot()">
+            <i class="fas fa-comments"></i>
+        </button>
+
+        <!-- --- CHATBOT SIDEBAR --- -->
+        <div class="chatbot-sidebar" id="chatbot_sidebar">
+            <div class="chatbot-header">
+                <h3><i class="fas fa-comments"></i> Chatbot AI</h3>
+                <button class="chatbot-close-btn" onclick="toggleChatbot()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <div class="chat-messages" id="chat_messages">
+                <div class="chat-welcome">
+                    <div class="chat-welcome-icon">🤖</div>
+                    <h3>Xin chào! Tôi là trợ lý nông nghiệp AI</h3>
+                    <p>Hãy hỏi tôi về trạng thái cảm biến, dữ liệu hệ thống, hoặc các câu hỏi về nông nghiệp.</p>
+                    <div class="chat-examples">
+                        <button class="example-btn" onclick="sendChatMessage('Cảm biến của tôi có hoạt động bình thường không?')">
+                            <i class="fas fa-question-circle"></i> Kiểm tra cảm biến
+                        </button>
+                        <button class="example-btn" onclick="sendChatMessage('Tôi nên tưới nước bao nhiêu lần trong ngày?')">
+                            <i class="fas fa-droplet"></i> Lịch tưới nước
+                        </button>
+                        <button class="example-btn" onclick="sendChatMessage('Chỉ số NPK hiện tại có tốt không?')">
+                            <i class="fas fa-flask"></i> Phân tích NPK
+                        </button>
+                        <button class="example-btn" onclick="sendChatMessage('Cây tôi đang bị khô hay ẩm quá?')">
+                            <i class="fas fa-tint"></i> Trạng thái độ ẩm
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="chat-input-area">
+                <textarea class="chat-input" id="chat_input" placeholder="Hỏi tôi gì đó..." rows="1"></textarea>
+                <button class="chat-send-btn" id="chat_send_btn" onclick="sendChatMessage()">
+                    <i class="fas fa-paper-plane"></i> GỬI
+                </button>
+            </div>
+        </div>
+
+        </div>
+
+    <script>
+        let navOpen = false;
+        let currentPeriod = 'day';
+        let statisticsChart = null;
+
+        function toggleNav() {
+            const sidebar = document.getElementById("mySidebar");
+            if (!navOpen) { sidebar.style.width = "300px"; navOpen = true; }
+            else { sidebar.style.width = "0"; navOpen = false; }
+        }
+
+        // --- TAB NAVIGATION ---
+        function showTab(tabName) {
+            // Ẩn tất cả tab
+            const tabContents = document.querySelectorAll('.tab-content');
+            tabContents.forEach(tab => tab.classList.remove('active'));
+
+            // Xóa active class từ tất cả button
+            const tabButtons = document.querySelectorAll('.tab-button');
+            tabButtons.forEach(btn => btn.classList.remove('active'));
+
+            // Hiển thị tab được chọn
+            document.getElementById(tabName).classList.add('active');
+
+            // Thêm active class cho button
+            event.target.classList.add('active');
+
+            // Nếu là tab thống kê, tải dữ liệu
+            if (tabName === 'statistics') {
+                updateStatistics();
+            }
+        }
+
+        // --- THỐNG KÊ ---
+        function changePeriod(period) {
+            currentPeriod = period;
+            
+            // Cập nhật active button
+            document.querySelectorAll('.period-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+
+            // Cập nhật period_display
+            let periodText = {
+                'day': 'Hôm nay',
+                'week': 'Tuần này',
+                'month': 'Tháng này'
+            };
+            document.getElementById('period_display').textContent = periodText[period];
+
+            updateStatistics();
+        }
+
+        function updateStatistics() {
+            $.getJSON(`/get-statistics?period=${currentPeriod}`, function(data) {
+                // Cập nhật các chỉ số
+                $('#total_water_display').text(data.total_water || 0);
+                $('#pump_times_display').text(data.pump_times || 0);
+                $('#avg_water_display').text(data.avg_water || 0);
+
+                // Cập nhật bảng chi tiết
+                const statsTable = $('#stats_table_body');
+                if (data.daily_stats && data.daily_stats.length > 0) {
+                    let rows = '';
+                    data.daily_stats.forEach(stat => {
+                        const avgPerPump = stat.times > 0 ? Math.round(stat.water / stat.times) : 0;
+                        rows += `
+                            <tr>
+                                <td><strong>${stat.date}</strong></td>
+                                <td style="color: #2ecc71; font-weight: bold;">${stat.water} ml</td>
+                                <td style="color: #e74c3c; font-weight: bold;">${stat.times} lần</td>
+                                <td style="color: #f39c12; font-weight: bold;">${avgPerPump} ml</td>
+                                <td>${stat.avg_moisture}%</td>
+                                <td>${stat.temp}°C</td>
+                                <td>${stat.humidity_air}%</td>
+                            </tr>
+                        `;
+                    });
+                    statsTable.html(rows);
+
+                    // Cập nhật biểu đồ
+                    updateStatisticsChart(data.daily_stats);
+                } else {
+                    statsTable.html('<tr><td colspan="7" style="text-align: center; padding: 20px; color: #95a5a6;">Chưa có dữ liệu</td></tr>');
+                    if (statisticsChart) {
+                        statisticsChart.data.labels = [];
+                        statisticsChart.data.datasets[0].data = [];
+                        statisticsChart.update();
+                    }
+                }
+            });
+        }
+
+        function updateStatisticsChart(dailyStats) {
+            const ctx = document.getElementById('statisticsChart');
+            if (!ctx) return;
+
+            // ✅ GIỚI HẠN SỐ LƯỢNG RECORDS HIỂN THỊ
+            const maxRecords = 7; // Hiển thị tối đa 7 ngày
+            const limitedStats = dailyStats.slice(0, maxRecords);
+
+            const labels = limitedStats.map(s => s.date);
+            const waterData = limitedStats.map(s => s.water);
+            const timesData = limitedStats.map(s => s.times);
+
+            if (!statisticsChart) {
+                statisticsChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [
+                            {
+                                label: 'Lượng nước (ml)',
+                                data: waterData,
+                                backgroundColor: 'rgba(46, 204, 113, 0.7)',
+                                borderColor: '#2ecc71',
+                                borderWidth: 2,
+                                yAxisID: 'y',
+                                barThickness: 30,
+                            },
+                            {
+                                label: 'Số lần bơm',
+                                data: timesData,
+                                backgroundColor: '#ff9800',
+                                borderColor: '#e67c0f',
+                                borderWidth: 2,
+                                yAxisID: 'y',
+                                barThickness: 25,
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        interaction: { mode: 'index', intersect: false },
+                        scales: {
+                            y: {
+                                type: 'linear',
+                                display: true,
+                                position: 'left',
+                                title: { display: true, text: 'Lượng nước (ml) / Số lần bơm' }
+                            }
+                        },
+                        plugins: {
+                            legend: { display: true, position: 'top' }
+                        }
+                    }
+                });
+            } else {
+                statisticsChart.data.labels = labels;
+                statisticsChart.data.datasets[0].data = waterData;
+                statisticsChart.data.datasets[1].data = timesData;
+                statisticsChart.update();
+            }
+        }
+
+        function manualPump(action) {
+            $.ajax({
+                url: '/control-pump',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({ action: action }),
+                success: function () { updateDashboard(); }
+            });
+        }
+
+        function sendNPK() {
+            const n = $('#n_input').val() || 0;
+            const p = $('#p_input').val() || 0;
+            const k = $('#k_input').val() || 0;
+            $.ajax({
+                url: '/update-npk',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({ n: n, p: p, k: k }),
+                success: function () { 
+                    alert("Cập nhật NPK thành công!");
+                    updateDashboard(); 
+                }
+            });
+        }
+
+        var ctx = document.getElementById('moistureChart').getContext('2d');
+        var chart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: 'Độ ẩm đất (%)',
+                    data: [],
+                    borderColor: '#2ecc71',
+                    backgroundColor: 'rgba(46, 204, 113, 0.1)',
+                    borderWidth: 3,
+                    tension: 0.4,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: { min: 0, max: 100, ticks: { stepSize: 20 } },
+                    x: { grid: { display: false } }
+                },
+                plugins: { legend: { display: false } }
+            }
+        });
+
+        function updateDashboard() {
+            $.getJSON('/get-data', function (data) {
+                // 1. Cập nhật Độ ẩm đất (Luôn ưu tiên)
+                if (data.sensor_connected) {
+                    $('#moisture_val').text(data.moisture + '%');
+                    const statusEl = $('#moisture_status');
+                    if (data.moisture < 30) { statusEl.text("CẢNH BÁO: KHÔ").css("color", "#e74c3c"); }
+                    else if (data.moisture <= 75) { statusEl.text("TRẠNG THÁI: TỐT").css("color", "#27ae60"); }
+                    else { statusEl.text("TRẠNG THÁI: QUÁ ẨM").css("color", "#3498db"); }
+                } else {
+                    $('#moisture_val').html('<span style="color: #e74c3c; font-size: 24px;">⚠️</span>');
+                    $('#moisture_status').text("CHƯA KẾT NỐI").css("color", "#e74c3c");
+                }
+
+                // 2. Cập nhật NPK (Phải đưa ra ngoài IF thời tiết)
+                $('#n_display').text(data.n_val || 0);
+                $('#p_display').text(data.p_val || 0);
+                $('#k_display').text(data.k_val || 0);
+
+                // 3. Cập nhật Thời tiết & Gió/Mưa (Chỉ chạy khi có data thực)
+                if (data.temp !== "--" && data.temp !== null) {
+                    $('#temp_val').text(data.temp + '°C');
+                    $('#weather_desc').text(data.weather_desc.toUpperCase());
+                    $('#air_hum').text('Độ ẩm khí trời: ' + data.humidity_air + '%');
+                    $('#wind_val').text(data.wind_speed + ' m/s');
+                    $('#rain_val').text(data.rain + ' mm');
+                    $('#vis_val').text(data.visibility + ' km');
+                    $('#pres_val').text(data.pressure + ' hPa');
+                    
+                    if (data.next_temp !== "--") {
+                        $('#forecast_text').text(data.next_desc + " (" + data.next_temp + "°C)");
+                        $('#rain_prob').text("Xác suất mưa: " + data.next_rain_prob + "%");
+                    }
+                }
+
+                // 4. Lời khuyên AI & Biểu đồ
+                $('#ai_advice').text(data.ai_advice);
+                if (data.timestamps && data.timestamps.length > 0) {
+                    chart.data.labels = data.timestamps;
+                    chart.data.datasets[0].data = data.moisture_history;
+                    chart.update('none');
+                }
+
+                // 5. Cập nhật Lịch sử bơm nước
+                updatePumpHistory(data.pump_history);
+            });
+        }
+
+        function updatePumpHistory(historyData) {
+            const tbody = $('#pump_history_body');
+            if (!historyData || historyData.length === 0) {
+                tbody.html('<tr><td colspan="8" class="empty-message">Chưa có dữ liệu bơm nước</td></tr>');
+                return;
+            }
+
+            let rows = '';
+            historyData.forEach(function(entry) {
+                const modeClass = entry.mode.includes('Tự động') ? 'mode-auto' : 'mode-manual';
+                const modeText = entry.mode.includes('Tự động') ? 'Tự động (AI)' : 'Thủ công';
+                const actionClass = entry.action.includes('Bắt đầu') ? 'action-on' : 'action-off';
+                const actionText = entry.action.includes('Bắt đầu') ? '🟢 BẬT' : '🔴 TẮT';
+                
+                const moisture = entry.moisture !== undefined ? entry.moisture : '--';
+                const temp = entry.temp !== undefined ? entry.temp : '--';
+                const humidity = entry.humidity_air !== undefined ? entry.humidity_air : '--';
+                const weather = entry.weather_desc !== undefined ? entry.weather_desc : '--';
+                
+                rows += `
+                    <tr>
+                        <td>${entry.time}</td>
+                        <td class="${actionClass}">${actionText}</td>
+                        <td><span class="${modeClass}">${modeText}</span></td>
+                        <td><span class="volume-badge">${entry.volume}</span></td>
+                        <td style="color: #27ae60; font-weight: bold;">${moisture}%</td>
+                        <td style="color: #e67e22; font-weight: bold;">${temp}°C</td>
+                        <td style="color: #3498db; font-weight: bold;">${humidity}%</td>
+                        <td style="color: #95a5a6; font-weight: bold;">${weather}</td>
+                    </tr>
+                `;
+            });
+            tbody.html(rows);
+        }
+
+        $('#crop_select').on('change', function () {
+            $.ajax({
+                url: '/set-crop',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({ crop: $(this).val() }),
+                success: function () { updateDashboard(); }
+            });
+        });
+
+        function updateAlertHistory() {
+            $.getJSON('/get-alert-history', function(data) {
+                const alertHistoryDiv = $('#alert_history');
+                
+                if (!data.alerts || data.alerts.length === 0) {
+                    alertHistoryDiv.html('<p style="text-align: center; padding: 20px; color: #7f8c8d;">Chưa có cảnh báo</p>');
+                    return;
+                }
+
+                let html = '<div style="max-height: 400px; overflow-y: auto;">';
+                data.alerts.forEach(function(alert) {
+                    const iconType = alert.type === 'DRY' ? '🔴' : '🔵';
+                    const alertTypeText = alert.type === 'DRY' ? 'ĐẤT QUTRƠI KHÔNG KHI' : 'ĐẤT QUTRƠI ẨM';
+                    const bgColor = alert.type === 'DRY' ? '#fef0e6' : '#e8f4f8';
+                    const borderColor = alert.type === 'DRY' ? '#e67e22' : '#3498db';
+                    
+                    html += `
+                        <div style="border-left: 4px solid ${borderColor}; background: ${bgColor}; padding: 12px; margin-bottom: 10px; border-radius: 6px;">
+                            <div style="font-weight: bold; color: #2c3e50; margin-bottom: 5px;">
+                                ${iconType} ${alertTypeText}
+                            </div>
+                            <div style="font-size: 13px; color: #7f8c8d;">
+                                🕐 ${alert.time} | 💧 ${alert.moisture}% | 🌱 ${alert.crop}
+                            </div>
+                        </div>
+                    `;
+                });
+                html += '</div>';
+                alertHistoryDiv.html(html);
+            });
+        }
+
+        $(document).ready(function () {
+            updateDashboard();
+            updateAlertHistory();
+            setInterval(updateDashboard, 3000);
+            setInterval(updateAlertHistory, 5000);
+        });
+
+        // --- FLOATING CHATBOT FUNCTIONS ---
+        function toggleChatbot() {
+            const sidebar = $('#chatbot_sidebar');
+            const btn = $('#chatbot_float_btn');
+            
+            sidebar.toggleClass('active');
+            btn.toggleClass('active');
+        }
+
+        function sendChatMessage(message = null) {
+            const chatInput = $('#chat_input');
+            const userMessage = message || chatInput.val().trim();
+            
+            if (!userMessage) return;
+            
+            // Hiển thị tin nhắn user
+            addChatMessage(userMessage, 'user');
+            chatInput.val('');
+            
+            // Vô hiệu hóa button gửi
+            const sendBtn = $('#chat_send_btn');
+            sendBtn.prop('disabled', true);
+            
+            // Hiển thị loading
+            showChatLoading();
+            
+            // Gửi request tới server
+            $.ajax({
+                url: '/chat',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({ message: userMessage }),
+                success: function(data) {
+                    if (data.success) {
+                        addChatMessage(data.message, 'bot');
+                    } else {
+                        addChatMessage('❌ ' + data.message, 'bot');
+                    }
+                },
+                error: function() {
+                    addChatMessage('❌ Lỗi kết nối tới server. Vui lòng thử lại.', 'bot');
+                },
+                complete: function() {
+                    sendBtn.prop('disabled', false);
+                    removeChatLoading();
+                }
+            });
+        }
+
+        function addChatMessage(message, sender) {
+            const chatMessages = $('#chat_messages');
+            
+            // Xóa welcome message nếu có
+            if (chatMessages.find('.chat-welcome').length > 0) {
+                chatMessages.find('.chat-welcome').remove();
+            }
+            
+            const messageHtml = `
+                <div class="chat-message ${sender}">
+                    <div class="message-bubble ${sender}">
+                        ${escapeHtml(message)}
+                    </div>
+                </div>
+            `;
+            
+            chatMessages.append(messageHtml);
+            
+            // Scroll tới cuối
+            chatMessages.scrollTop(chatMessages[0].scrollHeight);
+        }
+
+        function showChatLoading() {
+            const chatMessages = $('#chat_messages');
+            const loadingHtml = `
+                <div class="chat-message bot" id="chat_loading">
+                    <div class="message-bubble bot">
+                        <div class="chat-loading">
+                            <span>.</span><span>.</span><span>.</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+            chatMessages.append(loadingHtml);
+            chatMessages.scrollTop(chatMessages[0].scrollHeight);
+        }
+
+        function removeChatLoading() {
+            $('#chat_loading').remove();
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Handle Enter key để gửi tin nhắn
+        $('#chat_input').keypress(function(e) {
+            if (e.which === 13 && !e.shiftKey) {
+                e.preventDefault();
+                sendChatMessage();
+            }
+        });
+
+        // Prevent event propagation inside sidebar (để không đóng khi chọn text)
+        $('#chatbot_sidebar').on('mousedown mouseup click', function(e) {
+            e.stopPropagation();
+        });
+
+        // Đóng chatbot khi click ngoài sidebar
+        $(document).on('click', function(e) {
+            const sidebar = $('#chatbot_sidebar');
+            const btn = $('#chatbot_float_btn');
+            const isClickInsideSidebar = sidebar.is(e.target) || sidebar.has(e.target).length > 0;
+            const isClickOnButton = btn.is(e.target) || btn.has(e.target).length > 0;
+            
+            if (sidebar.hasClass('active') && !isClickInsideSidebar && !isClickOnButton) {
+                sidebar.removeClass('active');
+                btn.removeClass('active');
+            }
+        });
+    </script>
+</body>
+</html>
